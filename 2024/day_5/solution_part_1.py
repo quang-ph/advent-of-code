@@ -16,20 +16,13 @@ with open('2024/day_5/input.txt', 'r') as input:
 
 qualified = []
 for update in updates:
-    print(rules)
-    print(update)
     previous_items = []
     add = True
     for item in update:
-        print(item)
-        print(rules[item])
-        print(previous_items)
         if len(list(set(previous_items).intersection(rules[item]))) > 0:
             add = False
             break
-        print(list(set(previous_items).intersection(rules[item])))
         previous_items.append(item)
-        print(previous_items)
     if add:
         qualified.append(update)
 

@@ -1,17 +1,14 @@
 rules = {}
 updates = []
 with open('2024/day_5/input.txt', 'r') as input:
-    for line in input.readlines():
+    for line in input:
+        line = line.strip()
         if "|" in line:
-            list_1 = line.replace('\n', '').split('|')
-            if int(list_1[0]) not in rules.keys():
-                rules[int(list_1[0])] = [int(list_1[1])]
-            else:
-                rules[int(list_1[0])].append(int(list_1[1]))
-            if int(list_1[1]) not in rules.keys():
-                rules[int(list_1[1])] = []
-        elif line != '\n':
-            items = [int(item) for item in line.replace('\n', '').split(',')]
+            source, target = map(int, line.split("|"))
+            rules.setdefault(source, []).append(target)
+            rules.setdefault(target, [])
+        elif line:  # Check if line is not empty
+            items = [int(item) for item in line.split(",")]
             updates.append(items)
 
 unqualified = []
@@ -27,21 +24,29 @@ for update in updates:
         unqualified.append(update)
 
 
-print(rules)
 qualified = []
 for update in unqualified:
     correct_order = []
-    while len(correct_order) < len(update):
-        for item in update:
-            add = True
-            for key in rules.keys():
-                if key not in correct_order and key in update and item in rules[key]:
-                    add = False
-                    break
-            if add and item not in correct_order:
-                correct_order.append(item)
+    remaining_items = set(update)
+
+    while remaining_items:
+        available_items = {
+            item for item in remaining_items
+            if not any(
+                key in remaining_items and item in rules[key]
+                for key in rules
+            )
+        }
+
+        if not available_items:
+            # If no items are available, there might be a circular dependency
+            print("Warning: Possible circular dependency detected")
+            break
+
+        item = min(available_items)  # Use min() for consistent ordering
+        correct_order.append(item)
+        remaining_items.remove(item)
     qualified.append(correct_order)
-print(qualified)
 
 
 def get_middle_detailed(lst):
